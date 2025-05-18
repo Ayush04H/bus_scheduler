@@ -8,43 +8,51 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBusDrivers();
     loadRouteRuns();
 
+    // Setup toggle buttons
+    setupToggleButtons(); // <--- NEW FUNCTION CALL
+
     // Get button and output area elements
     const solveButton = document.getElementById('solveButton');
     const scheduleOutputElement = document.getElementById('scheduleOutput');
 
     // Add event listener to the solve button
     if (solveButton && scheduleOutputElement) {
-        solveButton.addEventListener('click', async () => { // Make the handler async
-            scheduleOutputElement.textContent = 'Solving... Please wait.'; // Update status
+        solveButton.addEventListener('click', async () => {
+            scheduleOutputElement.textContent = 'Solving... Please wait.';
+            // Make sure the schedule section is visible when solving
+            if (scheduleOutputElement.classList.contains('hidden')) {
+                scheduleOutputElement.classList.remove('hidden');
+                // Optionally update its button text
+                const scheduleButton = document.querySelector('.toggle-data-btn[data-target="scheduleOutput"]');
+                if (scheduleButton) scheduleButton.textContent = 'Hide Schedule';
+            }
+
             try {
-                // Call the backend endpoint to solve the schedule
                 const response = await fetch('/api/schedule/solve', {
-                    method: 'POST', // Match the @POST in SchedulingResource
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json'
-                        // 'Content-Type': 'application/json' // Not needed for this POST without a body
                     }
                 });
 
                 if (!response.ok) {
-                    // If response is not OK, throw an error to be caught by the catch block
-                    throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                    const errorText = await response.text(); // Get more error details
+                    throw new Error(`HTTP error! status: ${response.status} ${response.statusText}. Server says: ${errorText}`);
                 }
 
-                const solution = await response.json(); // Parse the JSON response
+                const solution = await response.json();
                 
-                // Display the solution in a structured way
                 if (solution && solution.assignedRouteRuns) {
                     if (solution.assignedRouteRuns.length === 0) {
                          scheduleOutputElement.textContent = "No route runs found in the solution or to schedule.";
                     } else {
-                        let displayText = `Schedule (Placeholder - No actual assignments yet):\n\n`;
+                        let displayText = `Schedule:\n\n`; // Simplified heading
                         solution.assignedRouteRuns.forEach(run => {
                             displayText += `Run ID: ${run.id}\n`;
                             displayText += `  Route: ${run.busRouteId}\n`;
                             displayText += `  Departure: ${run.departureTime}, Arrival: ${run.arrivalTime}\n`;
-                            displayText += `  Assigned Bus: ${run.assignedBusId || 'N/A'}\n`; // Will be N/A for now
-                            displayText += `  Assigned Driver: ${run.assignedDriverId || 'N/A'}\n\n`; // Will be N/A for now
+                            displayText += `  Assigned Bus: ${run.assignedBusId || 'N/A'}\n`;
+                            displayText += `  Assigned Driver: ${run.assignedDriverId || 'N/A'}\n\n`;
                         });
                         scheduleOutputElement.textContent = displayText;
                     }
@@ -63,7 +71,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- Data Fetching and Population Functions (Keep these as they are) ---
+// --- NEW FUNCTION to setup toggle buttons ---
+function setupToggleButtons() {
+    const toggleButtons = document.querySelectorAll('.toggle-data-btn');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.target; // Get the ID from data-target attribute
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                targetElement.classList.toggle('hidden');
+                // Update button text
+                if (targetElement.classList.contains('hidden')) {
+                    button.textContent = `Show ${targetId.replace('List', '').replace('Output', '')}`; // e.g., Show BusStops
+                } else {
+                    button.textContent = `Hide ${targetId.replace('List', '').replace('Output', '')}`; // e.g., Hide BusStops
+                }
+            } else {
+                console.error(`Target element with ID "${targetId}" not found for button.`);
+            }
+        });
+        // Initialize button text based on current state (all are hidden initially)
+        const targetElement = document.getElementById(button.dataset.target);
+        if (targetElement && targetElement.classList.contains('hidden')) {
+             button.textContent = `Show ${button.dataset.target.replace('List', '').replace('Output', '')}`;
+        } else if (targetElement) {
+            button.textContent = `Hide ${button.dataset.target.replace('List', '').replace('Output', '')}`;
+        }
+    });
+}
+
+
+// --- Data Fetching and Population Functions (Keep these as they are, with one minor adjustment if needed) ---
 
 async function fetchData(url) {
     try {
@@ -80,11 +119,16 @@ async function fetchData(url) {
 
 function populateList(elementId, data, formatter) {
     const listElement = document.getElementById(elementId);
-    if (!listElement) return;
+    if (!listElement) {
+        console.error(`List element with ID "${elementId}" not found.`);
+        return;
+    }
 
     listElement.innerHTML = ''; // Clear "Loading..."
     if (!data || data.length === 0) { 
         listElement.innerHTML = '<li>No data available or error loading.</li>';
+        // Even if no data, ensure the section is not hidden IF the button was clicked to show it
+        // This is handled by the button's toggle logic.
         return;
     }
     data.forEach(item => {
