@@ -1,0 +1,16 @@
+[
+    {"id": "D1", "name": "Swargate Depot", "maxCapacity": 70, "hasChargingStation": true},
+    {"id": "D2", "name": "Kothrud Depot", "maxCapacity": 65, "hasChargingStation": true},
+    {"id": "D3", "name": "Hadapsar (Gadital) Depot", "maxCapacity": 60, "hasChargingStation": true},
+    {"id": "D4", "name": "Pimpri Depot", "maxCapacity": 50, "hasChargingStation": true},
+    {"id": "D5", "name": "Nigdi Depot", "maxCapacity": 55, "hasChargingStation": true},
+    {"id": "D6", "name": "Pune Station Depot", "maxCapacity": 40, "hasChargingStation": true},
+    {"id": "D7", "name": "Katraj Depot", "maxCapacity": 35, "hasChargingStation": true},
+    {"id": "D8", "name": "Bhosari Depot", "maxCapacity": 45, "hasChargingStation": false},
+    {"id": "D9", "name": "Narveer Tanaji Wadi (NT Wadi) Depot", "maxCapacity": 25, "hasChargingStation": true},
+    {"id": "D10", "name": "Shewalewadi E-Bus Depot", "maxCapacity": 30, "hasChargingStation": true},
+    {"id": "D11", "name": "Bhekrai Nagar E-Bus Depot", "maxCapacity": 28, "hasChargingStation": true},
+    {"id": "D12", "name": "Market Yard Depot", "maxCapacity": 30, "hasChargingStation": false},
+    {"id": "D13", "name": "Baner Depot (Proposed/Smaller)", "maxCapacity": 20, "hasChargingStation": true},
+    {"id": "D14", "name": "Wagholi Maintenance Shed", "maxCapacity": 15, "hasChargingStation": false}
+]
