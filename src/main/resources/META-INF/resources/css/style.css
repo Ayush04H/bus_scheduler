@@ -1,142 +1,237 @@
+/* === Reset & Basic Setup === */
 body {
-    font-family: sans-serif;
-    margin: 20px;
-    background-color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f2f5; /* Light grey background */
     color: #333;
+    line-height: 1.6;
 }
 
-h1, h2 {
-    color: #333;
+* {
+    box-sizing: border-box;
 }
 
-.data-section, .actions-section, .schedule-section {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 15px;
+/* === General Layout & Typography === */
+h1 {
+    color: #1a237e; /* Dark blue */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+h2 {
+    color: #3949ab; /* Indigo */
+    border-bottom: 2px solid #7986cb; /* Lighter indigo */
+    padding-bottom: 10px;
+    margin-top: 30px;
     margin-bottom: 20px;
-    border-radius: 5px;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-}
-
-li:last-child {
-    border-bottom: none;
-}
-
-button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-pre {
-    background-color: #e9e9e9;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    white-space: pre-wrap; /* Allows text to wrap */
-    word-wrap: break-word; /* Breaks long words */
-}
-
-/* css/style.css */
-body {
-    font-family: sans-serif;
-    margin: 20px;
-    background-color: #f4f4f4;
-}
-
-h1, h2 {
-    color: #333;
-}
-
-.data-section, .actions-section, .schedule-section {
-    background-color: #fff;
-    margin-bottom: 20px;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.data-section h2 {
-    display: flex; /* Aligns heading and button */
-    justify-content: space-between; /* Puts button to the right */
-    align-items: center; /* Vertically aligns them */
-    margin-top: 0;
-}
-
-.toggle-data-btn {
-    padding: 5px 10px;
-    font-size: 0.9em;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: #e9e9e9;
-    border-radius: 3px;
-}
-
-.toggle-data-btn:hover {
-    background-color: #ddd;
-}
-
-ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-ul li {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-}
-
-ul li:last-child {
-    border-bottom: none;
-}
-
-pre {
-    background-color: #2d2d2d;
-    color: #f0f0f0;
-    padding: 15px;
-    border-radius: 4px;
-    overflow-x: auto; /* For long lines in schedule */
-    white-space: pre-wrap; /* Wrap lines in schedule */
-}
-
-/* This is the crucial part for toggling visibility */
-.hidden {
-    display: none;
+    font-size: 1.8em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 hr {
-    margin: 30px 0;
+    margin: 40px 0;
     border: 0;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #e0e0e0;
 }
 
-#solveButton {
-    padding: 10px 15px;
-    background-color: #007bff;
+/* === Buttons === */
+button {
+    padding: 10px 18px;
+    background-color: #1e88e5; /* Bright blue */
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-#solveButton:hover {
-    background-color: #0056b3;
+button:hover {
+    background-color: #1565c0; /* Darker blue */
+}
+button:active {
+    transform: translateY(1px);
+}
+
+.toggle-data-btn {
+    padding: 6px 12px;
+    font-size: 0.85em;
+    background-color: #5c6bc0; /* Indigo light */
+    border: none;
+}
+.toggle-data-btn:hover {
+    background-color: #3949ab; /* Indigo */
+}
+
+/* === Sections === */
+.actions-section,
+.schedule-summary-section,
+.schedule-section,
+.activity-log-section,
+.data-section {
+    background-color: #ffffff;
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.actions-section:hover,
+.schedule-summary-section:hover,
+.schedule-section:hover,
+.activity-log-section:hover,
+.data-section:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* === Input Data Lists (ul/li) === */
+ul.data-list { /* Added class to ul for specificity */
+    list-style-type: none;
+    padding-left: 0;
+    max-height: 300px; /* Limit height and make scrollable */
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+ul.data-list li {
+    padding: 10px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95em;
+    transition: background-color 0.2s ease;
+}
+ul.data-list li:last-child {
+    border-bottom: none;
+}
+ul.data-list li:hover {
+    background-color: #e3f2fd; /* Light blue on hover */
+}
+
+/* === Schedule Output (pre tags) === */
+pre.data-list { /* Added class to pre for specificity */
+    background-color: #263238; /* Darker material blue-grey */
+    color: #eceff1; /* Light grey text */
+    padding: 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    max-height: 400px; /* Scrollable */
+    overflow-y: auto;
+}
+
+/* === Activity Log Specific Styles === */
+.entity-activity-block {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #d1c4e9; /* Light purple border */
+    border-radius: 6px;
+    background-color: #f8f9fa; /* Very light grey */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.entity-activity-block h4 {
+    margin-top: 0;
+    color: #4527a0; /* Deep purple */
+    border-bottom: 2px solid #b39ddb; /* Lighter purple */
+    padding-bottom: 8px;
+    font-size: 1.3em;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.9em;
+    animation: fadeInTable 0.5s ease-in-out; /* Simple fade-in for tables */
+}
+
+@keyframes fadeInTable {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.activity-table th,
+.activity-table td {
+    border: 1px solid #e0e0e0;
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.activity-table th {
+    background-color: #ede7f6; /* Light purple tint */
+    color: #4a148c; /* Dark purple */
+    font-weight: 600;
+}
+
+.activity-table tr:nth-child(even) td { /* Slightly different bg for even rows */
+    background-color: #fdfcfe;
+}
+.activity-table tr:hover td {
+    background-color: #d1c4e9 !important; /* Light purple on hover, !important to override nth-child */
+    color: #212121;
+    transition: background-color 0.2s ease;
+}
+
+/* Color coding for activity types */
+.activity-table td[data-label="Activity"] { font-weight: 500; }
+.activity-type-ROUTE_SERVICE { color: #00796b; /* Teal */}
+.activity-type-TRAVEL_TO_START_TERMINAL,
+.activity-type-TRAVEL_TO_DEPOT { color: #546e7a; /* Blue Grey */ }
+.activity-type-CHARGING { color: #fb8c00; /* Orange */ }
+.activity-type-MANDATORY_BREAK { color: #d32f2f; /* Red */ }
+.activity-type-WAITING_IDLE { color: #757575; /* Grey */ }
+
+
+/* === Utility: Hidden Class === */
+.hidden {
+    display: none !important; /* Use !important to ensure it overrides other display properties */
+}
+
+/* === Basic Responsiveness for Tables (from your code, slightly tweaked) === */
+@media screen and (max-width: 768px) {
+    .activity-table thead {
+        display: none; /* Hide table headers, data-label will be used */
+    }
+    .activity-table, .activity-table tbody, .activity-table tr, .activity-table td {
+        display: block;
+        width: 100%;
+    }
+    .activity-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px; /* Add some rounding to stacked rows */
+        padding: 10px; /* Add padding inside the "card" */
+    }
+    .activity-table td {
+        display: flex; /* Use flex for better alignment of label and value */
+        justify-content: space-between; /* Pushes value to the right */
+        text-align: right; /* Align value to the right */
+        padding: 8px 0; /* Adjust padding */
+        padding-left: 0; /* Remove left padding for pseudo-element */
+        border-bottom: 1px dotted #eee; /* Dotted line between "fields" */
+        position: relative; /* Keep for ::before */
+    }
+    .activity-table td:last-child {
+        border-bottom: none;
+    }
+    .activity-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        text-align: left; /* Align label to the left */
+        margin-right: 10px; /* Space between label and value */
+        color: #555;
+        /* Removed absolute positioning for simpler flow */
+    }
 }

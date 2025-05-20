@@ -7,66 +7,61 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Bus Scheduling System - Data</h1>
+    <h1>Bus Scheduling System</h1> <!-- Simplified Main Title -->
 
-    <div class="data-section">
-        <h2>Bus Stops <button class="toggle-data-btn" data-target="busStopsList">Show Data</button></h2>
-        <ul id="busStopsList" class="data-list hidden">
-            <li>Loading bus stops...</li>
-        </ul>
-    </div>
-
-    <div class="data-section">
-        <h2>Buses <button class="toggle-data-btn" data-target="busesList">Show Data</button></h2>
-        <ul id="busesList" class="data-list hidden">
-            <li>Loading buses...</li>
-        </ul>
-    </div>
-
-    <div class="data-section">
-        <h2>Bus Routes <button class="toggle-data-btn" data-target="busRoutesList">Show Data</button></h2>
-        <ul id="busRoutesList" class="data-list hidden">
-            <li>Loading bus routes...</li>
-        </ul>
-    </div>
-
-    <hr>
     <div class="actions-section">
         <h2>Actions</h2>
-        <button id="solveButton">Solve Schedule (Not Implemented Yet)</button>
+        <button id="solveButton">Solve Schedule</button> <!-- Updated text -->
     </div>
     
-    <div class="schedule-section">
-        <h2>Generated Schedule <button class="toggle-data-btn" data-target="scheduleOutput">Show Schedule</button></h2>
-        <pre id="scheduleOutput" class="data-list hidden">Schedule will appear here...</pre>
+    <div class="schedule-summary-section"> <!-- NEW section for score -->
+        <h2>Schedule Summary <button class="toggle-data-btn" data-target="scheduleSummaryOutput">Show Summary</button></h2>
+        <pre id="scheduleSummaryOutput" class="data-list hidden">Summary will appear here...</pre>
     </div>
 
+    <div class="schedule-section">
+        <h2>Assigned Route Runs <button class="toggle-data-btn" data-target="assignedRunsOutput">Show Runs</button></h2>
+        <pre id="assignedRunsOutput" class.="data-list hidden">Assigned runs will appear here...</pre>
+    </div>
+
+    <!-- NEW Section for Detailed Activity Logs -->
+    <div class="activity-log-section">
+        <h2>Detailed Activity Logs <button class="toggle-data-btn" data-target="fullActivityLogOutput">Show All Activities</button></h2>
+        <div id="fullActivityLogOutput" class="data-list hidden">
+            <!-- Bus specific logs will be injected here by JS -->
+            <!-- Driver specific logs will be injected here by JS -->
+        </div>
+    </div>
+    <hr>
+
+    <h2>Input Data</h2>
+    <div class="data-section">
+        <h2>Bus Stops <button class="toggle-data-btn" data-target="busStopsList">Show Data</button></h2>
+        <ul id="busStopsList" class="data-list hidden"><li>Loading...</li></ul>
+    </div>
+    <div class="data-section">
+        <h2>Buses <button class="toggle-data-btn" data-target="busesList">Show Data</button></h2>
+        <ul id="busesList" class="data-list hidden"><li>Loading...</li></ul>
+    </div>
+    <div class="data-section">
+        <h2>Bus Routes <button class="toggle-data-btn" data-target="busRoutesList">Show Data</button></h2>
+        <ul id="busRoutesList" class="data-list hidden"><li>Loading...</li></ul>
+    </div>
      <div class="data-section">
         <h2>Bus Depots <button class="toggle-data-btn" data-target="busDepotsList">Show Data</button></h2>
-        <ul id="busDepotsList" class="data-list hidden">
-            <li>Loading bus depots...</li>
-        </ul>
+        <ul id="busDepotsList" class="data-list hidden"><li>Loading...</li></ul>
     </div>
-
     <div class="data-section">
         <h2>Bus Terminals <button class="toggle-data-btn" data-target="busTerminalsList">Show Data</button></h2>
-        <ul id="busTerminalsList" class="data-list hidden">
-            <li>Loading bus terminals...</li>
-        </ul>
+        <ul id="busTerminalsList" class="data-list hidden"><li>Loading...</li></ul>
     </div>
-
     <div class="data-section">
         <h2>Bus Drivers <button class="toggle-data-btn" data-target="busDriversList">Show Data</button></h2>
-        <ul id="busDriversList" class="data-list hidden">
-            <li>Loading bus drivers...</li>
-        </ul>
+        <ul id="busDriversList" class="data-list hidden"><li>Loading...</li></ul>
     </div>
-
     <div class="data-section">
         <h2>Route Runs (To Be Scheduled) <button class="toggle-data-btn" data-target="routeRunsList">Show Data</button></h2>
-        <ul id="routeRunsList" class="data-list hidden">
-            <li>Loading route runs...</li>
-        </ul>
+        <ul id="routeRunsList" class="data-list hidden"><li>Loading...</li></ul>
     </div>
 
     <script src="js/app.js"></script>
