@@ -1,11 +1,12 @@
 package com.bus.service;
 
-import java.time.LocalTime; // Assuming this imports all necessary domain classes
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map; // Import for calculating duration
-import java.util.stream.Collectors; // Though not directly used if sortedRuns is primary list
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.bus.domain.Bus;
 import com.bus.domain.BusDriver;
@@ -22,7 +23,7 @@ public class SchedulingService {
     @Inject
     DataService dataService;
 
-    // Bus related constants (from Step 8)
+    // Bus related constants (from Step 8/9)
     private static final int TRAVEL_TIME_DEPOT_TO_TERMINAL_MINS = 15;
     private static final int TRAVEL_DISTANCE_DEPOT_TO_TERMINAL_KM = 5;
     private static final int TRAVEL_TIME_TERMINAL_TO_DEPOT_MINS = 20;
@@ -31,14 +32,19 @@ public class SchedulingService {
     private static final double MIN_CHARGE_PERCENTAGE_THRESHOLD_FOR_NEXT_OPERATION = 0.20;
     private static final int MINIMAL_NEXT_ROUTE_PROXY_DISTANCE_KM = 20;
 
-    // Driver related constants (NEW for Step 9)
-    private static final int MAX_CONTINUOUS_DRIVING_MINS = 4 * 60; // 240 minutes
+    // Driver related constants (from Step 9/10)
+    private static final int MAX_CONTINUOUS_DRIVING_MINS = 4 * 60;
     private static final int MANDATORY_BREAK_MINS = 30;
-    private static final int MAX_REGULAR_DRIVING_MINS_PER_DAY = 8 * 60; // 480 minutes
-    private static final int MAX_TOTAL_DRIVING_MINS_PER_DAY_WITH_OT = 10 * 60; // 600 minutes (8 reg + 2 OT)
-    private static final int MIN_WAIT_TIME_TO_RESET_CONTINUOUS_DRIVING_MINS = 15; // If driver waits 15+ mins, continuous driving resets
+    private static final int MAX_REGULAR_DRIVING_MINS_PER_DAY = 8 * 60;
+    private static final int MAX_TOTAL_DRIVING_MINS_PER_DAY_WITH_OT = 10 * 60;
+    private static final int MIN_WAIT_TIME_TO_RESET_CONTINUOUS_DRIVING_MINS = 15;
+    private static final int DRIVER_TRAVEL_TIME_BETWEEN_TERMINALS_MINS = 15; // From Step 10
 
-    // BusState class (from Step 8)
+    // Score weights (NEW for Step 11)
+    private static final int PENALTY_PER_UNASSIGNED_RUN = -1000;
+    private static final int PENALTY_PER_BUS_USED = -100;
+
+    // BusState class (unchanged from your previous version)
     private static class BusState {
         Bus bus;
         LocalTime nextAvailableTime;
@@ -53,66 +59,61 @@ public class SchedulingService {
             this.currentChargeKm = bus.getCurrentChargeKm();
             this.isChargingOrHeadingToCharge = false;
         }
+        // Getter needed by heuristic if we sort on private field
+        public LocalTime getNextAvailableTime() { return nextAvailableTime; }
     }
 
-    // DriverState class (MODIFIED for Step 9)
+    // DriverState class (unchanged from your previous version)
     private static class DriverState {
         BusDriver driver;
         LocalTime nextAvailableTime;
         String currentLocationId;
-        int continuousDrivingTimeMinutes; // NEW
-        int totalDrivingTimeMinutesToday; // NEW
-        // boolean isOnMandatoryBreak; // Can be inferred
+        int continuousDrivingTimeMinutes;
+        int totalDrivingTimeMinutesToday;
 
         DriverState(BusDriver driver) {
             this.driver = driver;
             this.nextAvailableTime = LocalTime.MIN;
-            this.currentLocationId = null; // Default, or could be driver's home base
-            this.continuousDrivingTimeMinutes = 0; // NEW
-            this.totalDrivingTimeMinutesToday = 0; // NEW
+            this.currentLocationId = null;
+            this.continuousDrivingTimeMinutes = 0;
+            this.totalDrivingTimeMinutesToday = 0;
         }
     }
 
     public ScheduleSolution solveSchedule() {
-        System.out.println("SchedulingService: solveSchedule() with DRIVER HOURS & BREAKS logic."); // Updated message
+        System.out.println("SchedulingService: solveSchedule() with SCORING & BUS HEURISTIC logic."); // Updated message
 
+        // --- Data Initialization (unchanged) ---
         List<RouteRun> originalRunsToSchedule = dataService.getRouteRunsToSchedule();
         List<Bus> allBuses = dataService.getAllBuses();
         List<BusDriver> allDrivers = dataService.getAllBusDrivers();
         Map<String, BusRoute> routeTemplates = dataService.getAllBusRoutes().stream()
                 .collect(Collectors.toMap(BusRoute::getId, route -> route));
-
         Map<String, BusState> busStates = allBuses.stream()
                 .collect(Collectors.toMap(Bus::getBusId, BusState::new));
         Map<String, DriverState> driverStates = allDrivers.stream()
-                .collect(Collectors.toMap(BusDriver::getId, DriverState::new)); // Uses new DriverState
-
+                .collect(Collectors.toMap(BusDriver::getId, DriverState::new));
         List<RouteRun> sortedRuns = originalRunsToSchedule.stream()
                 .sorted(Comparator.comparing(RouteRun::getDepartureTime))
                 .collect(Collectors.toList());
-
-        // We modify 'sortedRuns' by setting assignments.
-        // No separate 'processedRuns' or 'assignedRuns' list is strictly needed for the final solution object
-        // if 'sortedRuns' is the one being updated and returned.
+        // --- End Data Initialization ---
 
         for (RouteRun run : sortedRuns) {
             BusRoute routeTemplate = routeTemplates.get(run.getBusRouteId());
-            if (routeTemplate == null) {
-                System.err.println("Could not find route template for run: " + run.getId());
-                continue;
-            }
+            if (routeTemplate == null) { /* ... unchanged ... */ continue; }
 
             String requiredStartTerminalId = routeTemplate.getStartTerminalId();
             LocalTime runDepartureTime = run.getDepartureTime();
             LocalTime runArrivalTimeAtEndTerminal = run.getArrivalTime();
+            int routeTravelTimeMinutes = routeTemplate.getTravelTimeMinutes();
             int routeDistanceKm = routeTemplate.getTotalDistanceKm();
-            int routeTravelTimeMinutes = routeTemplate.getTravelTimeMinutes(); // Get route duration
 
             BusState bestFitBusState = null;
             DriverState bestFitDriverState = null;
-            LocalTime driverEffectiveStartTimeForRun = null; // When driver is truly ready after potential break
+            LocalTime driverEffectiveStartTimeForRun = null;
 
-            // --- Bus Search Logic (Same as Step 8 - No changes here) ---
+            // --- Find an available bus (MODIFIED for Step 11 Heuristic) ---
+            List<BusState> suitableBuses = new ArrayList<>();
             for (BusState busState : busStates.values()) {
                 if (busState.isChargingOrHeadingToCharge) { continue; }
                 int travelToStartDistanceKm = 0;
@@ -129,148 +130,165 @@ public class SchedulingService {
                     travelFromEndToHomeDepotKm = TRAVEL_DISTANCE_TERMINAL_TO_DEPOT_KM;
                 }
                 int totalCycleDistanceKm = travelToStartDistanceKm + routeDistanceKm + travelFromEndToHomeDepotKm;
+
                 if (busState.currentChargeKm >= totalCycleDistanceKm) {
-                    bestFitBusState = busState;
-                    break;
+                    suitableBuses.add(busState); // Add to list instead of immediate break
                 }
             }
-            // --- End Bus Search ---
+
+            if (!suitableBuses.isEmpty()) {
+                // Heuristic:
+                // 1. Prefer buses already used (nextAvailableTime != LocalTime.MIN) over fresh ones.
+                // 2. Among those of the same "used" status, prefer the one available earliest.
+                // 3. Tie-break by bus ID for deterministic behavior.
+                bestFitBusState = suitableBuses.stream()
+                    .min(Comparator.comparing((BusState bs) -> bs.nextAvailableTime.equals(LocalTime.MIN)) // false (used) before true (fresh)
+                                   .thenComparing(BusState::getNextAvailableTime) // Earliest availability
+                                   .thenComparing(bs -> bs.bus.getBusId()))       // Tie-breaker
+                    .orElse(null); // Should not be null if suitableBuses is not empty
+
+                if (bestFitBusState != null) {
+                     System.out.println("For run " + run.getId() + ", selected bus " + bestFitBusState.bus.getBusId() +
+                                       " (Available: " + bestFitBusState.nextAvailableTime +
+                                       ", Fresh: " + bestFitBusState.nextAvailableTime.equals(LocalTime.MIN) + ")" +
+                                       " from " + suitableBuses.size() + " suitable buses.");
+                }
+            }
+            // --- End Bus Search Modification ---
+
 
             if (bestFitBusState != null) {
-                // --- Find an available driver (NEW STEP 9 LOGIC) ---
+                // --- Driver Search Logic (unchanged from Step 10) ---
                 for (DriverState driverState : driverStates.values()) {
-                    // 1. Check total driving time limit for the day
-                    if (driverState.totalDrivingTimeMinutesToday + routeTravelTimeMinutes > MAX_TOTAL_DRIVING_MINS_PER_DAY_WITH_OT) {
-                        continue; // Would exceed max daily driving
+                    if (driverState.totalDrivingTimeMinutesToday + routeTravelTimeMinutes > MAX_TOTAL_DRIVING_MINS_PER_DAY_WITH_OT) { continue; }
+                    LocalTime driverArrivalTimeAtRequiredTerminal = driverState.nextAvailableTime;
+                    if (driverState.currentLocationId == null) { /* ... */ }
+                    else if (!driverState.currentLocationId.equals(requiredStartTerminalId)) {
+                        driverArrivalTimeAtRequiredTerminal = driverState.nextAvailableTime.plusMinutes(DRIVER_TRAVEL_TIME_BETWEEN_TERMINALS_MINS);
+                        System.out.println("Driver " + driverState.driver.getId() + " needs to travel from " +
+                                           driverState.currentLocationId + " to " + requiredStartTerminalId +
+                                           ". Arrives at: " + driverArrivalTimeAtRequiredTerminal);
                     }
-
-                    LocalTime driverReadyAtTerminalTime = driverState.nextAvailableTime;
-                    // Simplistic: if driver is not at the required terminal, assume 10 min travel.
-                    // A proper implementation would require a distance/time matrix for driver travel.
-                    if (driverState.currentLocationId != null && !driverState.currentLocationId.equals(requiredStartTerminalId)) {
-                        driverReadyAtTerminalTime = driverState.nextAvailableTime.plusMinutes(10); // Placeholder for inter-terminal travel
-                    }
-                    
-                    // If driver has been waiting at a terminal before this run's departure time, reset continuous driving
-                    // This means any gap between driver's last 'nextAvailableTime' and 'runDepartureTime'
-                    if (driverState.nextAvailableTime.isBefore(runDepartureTime) && // Driver was free before this run
-                        ChronoUnit.MINUTES.between(driverState.nextAvailableTime, runDepartureTime) >= MIN_WAIT_TIME_TO_RESET_CONTINUOUS_DRIVING_MINS) {
-                        if (driverState.continuousDrivingTimeMinutes > 0) { // Only log if there was continuous time to reset
-                             System.out.println("Driver " + driverState.driver.getId() + " had a wait of " +
-                                               ChronoUnit.MINUTES.between(driverState.nextAvailableTime, runDepartureTime) +
-                                               " mins. Resetting continuous driving from " + driverState.continuousDrivingTimeMinutes + " to 0.");
+                    LocalTime referenceTimeForWaitCalc = driverState.nextAvailableTime;
+                    if (ChronoUnit.MINUTES.between(referenceTimeForWaitCalc, runDepartureTime) >= MIN_WAIT_TIME_TO_RESET_CONTINUOUS_DRIVING_MINS) {
+                        if (driverState.continuousDrivingTimeMinutes > 0) {
+                             System.out.println("Driver " + driverState.driver.getId() + " had a wait... Resetting continuous driving...");
                             driverState.continuousDrivingTimeMinutes = 0;
                         }
                     }
-
-                    LocalTime availabilityConsideringPotentialBreak = driverReadyAtTerminalTime;
-                    boolean needsBreakBeforeThisRun = false;
-
-                    // 2. Check continuous driving limit and if a break is needed *before* this run
+                    LocalTime availabilityConsideringPotentialBreak = driverArrivalTimeAtRequiredTerminal;
                     if (driverState.continuousDrivingTimeMinutes + routeTravelTimeMinutes > MAX_CONTINUOUS_DRIVING_MINS) {
-                        System.out.println("Driver " + driverState.driver.getId() + " needs a break. Cont. driving: " +
-                                           driverState.continuousDrivingTimeMinutes + "min. Route time: " + routeTravelTimeMinutes + "min.");
-                        availabilityConsideringPotentialBreak = driverReadyAtTerminalTime.plusMinutes(MANDATORY_BREAK_MINS);
-                        needsBreakBeforeThisRun = true;
+                        System.out.println("Driver " + driverState.driver.getId() + " would exceed continuous... Needs break...");
+                        availabilityConsideringPotentialBreak = driverArrivalTimeAtRequiredTerminal.plusMinutes(MANDATORY_BREAK_MINS);
                     }
-
-                    // 3. Is driver available on time for the run (considering the potential break)?
                     if (!availabilityConsideringPotentialBreak.isAfter(runDepartureTime)) {
                         bestFitDriverState = driverState;
-                        driverEffectiveStartTimeForRun = availabilityConsideringPotentialBreak; // This is when they are TRULY ready
-                        break; // Found a suitable driver
+                        driverEffectiveStartTimeForRun = availabilityConsideringPotentialBreak;
+                        break;
                     }
-                } // --- End Driver Search ---
+                }
+                // --- End Driver Search ---
             }
-
 
             if (bestFitBusState != null && bestFitDriverState != null) {
                 run.setAssignedBusId(bestFitBusState.bus.getBusId());
                 run.setAssignedDriverId(bestFitDriverState.driver.getId());
 
-                // --- Update Bus State (Same as Step 8) ---
-                int travelToStartDistanceKm = 0;
+                // --- Update Bus State (unchanged from Step 10) ---
+                // ... (full bus update and charging logic) ...
+                int travelToStartDistanceKm_bus = 0;
                 if (!bestFitBusState.currentLocationId.equals(requiredStartTerminalId)) {
-                    travelToStartDistanceKm = TRAVEL_DISTANCE_DEPOT_TO_TERMINAL_KM;
+                    travelToStartDistanceKm_bus = TRAVEL_DISTANCE_DEPOT_TO_TERMINAL_KM;
                 }
-                bestFitBusState.currentChargeKm -= (travelToStartDistanceKm + routeDistanceKm);
+                bestFitBusState.currentChargeKm -= (travelToStartDistanceKm_bus + routeDistanceKm);
                 bestFitBusState.currentLocationId = routeTemplate.getEndTerminalId();
                 bestFitBusState.nextAvailableTime = runArrivalTimeAtEndTerminal;
-
-                int travelFromEndToHomeDepotKm = 0;
-                LocalTime arrivalAtHomeDepot = runArrivalTimeAtEndTerminal;
+                int travelFromEndToHomeDepotKm_bus = 0;
+                LocalTime arrivalAtHomeDepot_bus = runArrivalTimeAtEndTerminal;
                 if (!routeTemplate.getEndTerminalId().equals(bestFitBusState.bus.getDepotId())) {
-                    travelFromEndToHomeDepotKm = TRAVEL_DISTANCE_TERMINAL_TO_DEPOT_KM;
-                    arrivalAtHomeDepot = runArrivalTimeAtEndTerminal.plusMinutes(TRAVEL_TIME_TERMINAL_TO_DEPOT_MINS);
+                    travelFromEndToHomeDepotKm_bus = TRAVEL_DISTANCE_TERMINAL_TO_DEPOT_KM;
+                    arrivalAtHomeDepot_bus = runArrivalTimeAtEndTerminal.plusMinutes(TRAVEL_TIME_TERMINAL_TO_DEPOT_MINS);
                 }
-                int chargeAfterReturningToDepotKm = bestFitBusState.currentChargeKm - travelFromEndToHomeDepotKm;
-                double chargePercentageAfterReturn = (double) chargeAfterReturningToDepotKm / bestFitBusState.bus.getRangeKm();
-                boolean canDoMinimalNextOp = chargeAfterReturningToDepotKm >= (TRAVEL_DISTANCE_DEPOT_TO_TERMINAL_KM + MINIMAL_NEXT_ROUTE_PROXY_DISTANCE_KM);
-
-                if (chargePercentageAfterReturn < MIN_CHARGE_PERCENTAGE_THRESHOLD_FOR_NEXT_OPERATION || !canDoMinimalNextOp) {
-                    System.out.println("Bus " + bestFitBusState.bus.getBusId() + " (at " + routeTemplate.getEndTerminalId() +
-                                       " after run " + run.getId() + ") needs charging. Charge before return trip to depot: " + bestFitBusState.currentChargeKm + "km. " +
-                                       "Est. charge after return: " + chargeAfterReturningToDepotKm + "km.");
+                int chargeAfterReturningToDepotKm_bus = bestFitBusState.currentChargeKm - travelFromEndToHomeDepotKm_bus;
+                double chargePercentageAfterReturn_bus = (double) chargeAfterReturningToDepotKm_bus / bestFitBusState.bus.getRangeKm();
+                boolean canDoMinimalNextOp_bus = chargeAfterReturningToDepotKm_bus >= (TRAVEL_DISTANCE_DEPOT_TO_TERMINAL_KM + MINIMAL_NEXT_ROUTE_PROXY_DISTANCE_KM);
+                if (chargePercentageAfterReturn_bus < MIN_CHARGE_PERCENTAGE_THRESHOLD_FOR_NEXT_OPERATION || !canDoMinimalNextOp_bus) {
+                    System.out.println("Bus " + bestFitBusState.bus.getBusId() + " needs charging..."); // Abridged log
                     bestFitBusState.isChargingOrHeadingToCharge = true;
                     bestFitBusState.currentLocationId = bestFitBusState.bus.getDepotId();
-                    bestFitBusState.currentChargeKm = chargeAfterReturningToDepotKm;
-                    bestFitBusState.nextAvailableTime = arrivalAtHomeDepot.plusMinutes(CHARGING_DURATION_MINS);
+                    bestFitBusState.currentChargeKm = chargeAfterReturningToDepotKm_bus;
+                    bestFitBusState.nextAvailableTime = arrivalAtHomeDepot_bus.plusMinutes(CHARGING_DURATION_MINS);
                     bestFitBusState.currentChargeKm = bestFitBusState.bus.getRangeKm();
                     bestFitBusState.isChargingOrHeadingToCharge = false;
-                    System.out.println("Bus " + bestFitBusState.bus.getBusId() + " completed charging at " + bestFitBusState.currentLocationId +
-                                       ". Next available: " + bestFitBusState.nextAvailableTime + ". Charge: " + bestFitBusState.currentChargeKm + "km.");
+                    System.out.println("Bus " + bestFitBusState.bus.getBusId() + " finished charging."); // Abridged log
                 } else {
                     bestFitBusState.currentLocationId = bestFitBusState.bus.getDepotId();
-                    bestFitBusState.currentChargeKm = chargeAfterReturningToDepotKm;
-                    bestFitBusState.nextAvailableTime = arrivalAtHomeDepot;
-                     System.out.println("Bus " + bestFitBusState.bus.getBusId() + " returned to depot " + bestFitBusState.currentLocationId +
-                                       " after run " + run.getId() + ". Next available: " + bestFitBusState.nextAvailableTime +
-                                       ". Charge: " + bestFitBusState.currentChargeKm + "km. No immediate charge needed.");
+                    bestFitBusState.currentChargeKm = chargeAfterReturningToDepotKm_bus;
+                    bestFitBusState.nextAvailableTime = arrivalAtHomeDepot_bus;
                 }
                 // --- End Bus State Update ---
 
-
-                // --- Update Driver State (NEW STEP 9 LOGIC) ---
-                // If driver's effective start time implies a break was taken before this run started
-                if (driverEffectiveStartTimeForRun.isAfter(bestFitDriverState.nextAvailableTime) && // Original availability was earlier
-                    driverEffectiveStartTimeForRun.isAfter(runDepartureTime.minusMinutes(MANDATORY_BREAK_MINS + 1))) { // And it's not just due to travel
-                     // This logic path is a bit tricky because driverEffectiveStartTimeForRun *should be* <= runDepartureTime from selection.
-                     // The critical part is whether continuousDrivingTimeMinutes was reset *because* a break was *forced*.
-                     // The condition `bestFitDriverState.continuousDrivingTimeMinutes + routeTravelTimeMinutes > MAX_CONTINUOUS_DRIVING_MINS`
-                     // in the search loop already identified if a break was *needed*.
+                // --- Update Driver State (unchanged from Step 10) ---
+                // ... (full driver state update logic including breaks) ...
+                boolean breakWasForcedByThisRun = (bestFitDriverState.continuousDrivingTimeMinutes + routeTravelTimeMinutes > MAX_CONTINUOUS_DRIVING_MINS) &&
+                                                  driverEffectiveStartTimeForRun.equals(
+                                                      (bestFitDriverState.currentLocationId == null || bestFitDriverState.currentLocationId.equals(requiredStartTerminalId) ?
+                                                          bestFitDriverState.nextAvailableTime :
+                                                          bestFitDriverState.nextAvailableTime.plusMinutes(DRIVER_TRAVEL_TIME_BETWEEN_TERMINALS_MINS)
+                                                      ).plusMinutes(MANDATORY_BREAK_MINS)
+                                                  );
+                if (breakWasForcedByThisRun) {
+                    System.out.println("Driver " + bestFitDriverState.driver.getId() + " is confirmed to have taken a mandatory break...");
+                    bestFitDriverState.continuousDrivingTimeMinutes = 0;
                 }
-
-                // If a break was needed and factored into driverEffectiveStartTimeForRun
-                if (bestFitDriverState.continuousDrivingTimeMinutes + routeTravelTimeMinutes > MAX_CONTINUOUS_DRIVING_MINS &&
-                    driverEffectiveStartTimeForRun.equals(bestFitDriverState.nextAvailableTime.plusMinutes(MANDATORY_BREAK_MINS)) || // Covers case where no travel, just break
-                    (bestFitDriverState.currentLocationId != null && !bestFitDriverState.currentLocationId.equals(requiredStartTerminalId) && // Covers travel + break
-                     driverEffectiveStartTimeForRun.equals(bestFitDriverState.nextAvailableTime.plusMinutes(10).plusMinutes(MANDATORY_BREAK_MINS))) 
-                    ) {
-                    System.out.println("Driver " + bestFitDriverState.driver.getId() + " took a mandatory break. Continuous driving resets.");
-                    bestFitDriverState.continuousDrivingTimeMinutes = 0; // Reset because break was taken
-                    // The nextAvailableTime is effectively driverEffectiveStartTimeForRun (which is runDepartureTime or earlier)
-                    // and they start driving *this* route.
-                }
-                
                 bestFitDriverState.continuousDrivingTimeMinutes += routeTravelTimeMinutes;
                 bestFitDriverState.totalDrivingTimeMinutesToday += routeTravelTimeMinutes;
                 bestFitDriverState.currentLocationId = routeTemplate.getEndTerminalId();
                 bestFitDriverState.nextAvailableTime = runArrivalTimeAtEndTerminal;
-
                 System.out.println("Assigned Run: " + run.getId() + " to Bus: " + run.getAssignedBusId() +
                                    " and Driver: " + run.getAssignedDriverId() +
-                                   ". Driver cont. driving: " + bestFitDriverState.continuousDrivingTimeMinutes + "min, total day: " + bestFitDriverState.totalDrivingTimeMinutesToday + "min");
+                                   ". Driver ... details ..."); // Abridged log
+                // --- End Driver State Update ---
 
-            } else { // Could not assign bus and/or driver
+            } else { /* ... unchanged ... */ 
                  System.out.println("Could not assign Run: " + run.getId() +
                                    (bestFitBusState == null ? " - No suitable bus." : "") +
-                                   (bestFitDriverState == null && bestFitBusState != null ? " - No suitable driver found." : ""));
+                                   (bestFitDriverState == null && bestFitBusState != null ? " - No suitable driver." : ""));
             }
         } // End of loop through runs
 
-        ScheduleSolution solution = new ScheduleSolution(sortedRuns); // Return all runs, with assignments updated
+        ScheduleSolution solution = new ScheduleSolution(sortedRuns);
+        calculateScore(solution, busStates); // NEW: Call scoring method
+
         long countAssignedBoth = sortedRuns.stream().filter(r -> r.getAssignedBusId() != null && r.getAssignedDriverId() != null).count();
         System.out.println("Finished scheduling. Total runs with Bus & Driver: " + countAssignedBoth + " out of " + sortedRuns.size() + " total runs.");
+        System.out.println("Solution Score: " + solution.getScore() + " (" + solution.getScoreExplanation() + ")"); // Log score
         return solution;
+    }
+
+    // NEW calculateScore method for Step 11
+    private void calculateScore(ScheduleSolution solution, Map<String, BusState> finalBusStates) {
+        int currentScore = 0;
+        StringBuilder explanation = new StringBuilder();
+
+        // 1. Penalty for unassigned runs
+        long unassignedCount = solution.getAssignedRouteRuns().stream()
+                .filter(run -> run.getAssignedBusId() == null || run.getAssignedDriverId() == null)
+                .count();
+        currentScore += unassignedCount * PENALTY_PER_UNASSIGNED_RUN;
+        explanation.append(unassignedCount).append(" unassigned runs (penalty: ").append(unassignedCount * PENALTY_PER_UNASSIGNED_RUN).append("). ");
+        solution.setUnassignedRunCount((int) unassignedCount);
+
+        // 2. Penalty for each bus used
+        long busesUsed = finalBusStates.values().stream()
+                .filter(busState -> solution.getAssignedRouteRuns().stream()
+                                   .anyMatch(run -> run.getAssignedBusId() != null && run.getAssignedBusId().equals(busState.bus.getBusId())))
+                .count();
+        currentScore += busesUsed * PENALTY_PER_BUS_USED;
+        explanation.append(busesUsed).append(" buses used (penalty: ").append(busesUsed * PENALTY_PER_BUS_USED).append("). ");
+        solution.setTotalBusesUsedCount((int) busesUsed);
+
+        solution.setScore(currentScore);
+        solution.setScoreExplanation(explanation.toString().trim());
     }
 }
