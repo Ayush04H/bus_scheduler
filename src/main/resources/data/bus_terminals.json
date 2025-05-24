@@ -1,21 +1,5 @@
 [
     {"id": "T1", "name": "Swargate Bus Stand"},
     {"id": "T2", "name": "Shivaji Nagar Bus Station"},
-    {"id": "T3", "name": "Pune Station Bus Stand"},
-    {"id": "T4", "name": "Kothrud Depot Bus Stand"},
-    {"id": "T5", "name": "Hadapsar Gadital Bus Stand"},
-    {"id": "T6", "name": "Katraj Bus Stand"},
-    {"id": "T7", "name": "Pimpri Chowk Bus Stand"},
-    {"id": "T8", "name": "Chinchwadgaon Bus Stand"},
-    {"id": "T9", "name": "Nigdi (Bhakti Shakti) Bus Terminal"},
-    {"id": "T10", "name": "Manapa Bhavan Bus Terminal (PMC)"},
-    {"id": "T11", "name": "Deccan Gymkhana Bus Terminal"},
-    {"id": "T12", "name": "Vallabhnagar ST Stand (PCMC)"},
-    {"id": "T13", "name": "Alandi Bus Stand"},
-    {"id": "T14", "name": "Wagholi Bus Terminal"},
-    {"id": "T15", "name": "Hinjewadi Maan Phase 3 Terminal"},
-    {"id": "T16", "name": "Lohegaon Airport Bus Terminal"},
-    {"id": "T17", "name": "Market Yard Bus Terminal"},
-    {"id": "T18", "name": "Bhosari Bus Terminal"},
-    {"id": "T19", "name": "Warje Malwadi Bus Terminal"}
+    {"id": "T3", "name": "Pune Station Bus Stand"}
 ]

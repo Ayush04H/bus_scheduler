@@ -7,29 +7,27 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Bus Scheduling System</h1> <!-- Simplified Main Title -->
+    <h1>Bus Scheduling System</h1>
 
     <div class="actions-section">
         <h2>Actions</h2>
-        <button id="solveButton">Solve Schedule</button> <!-- Updated text -->
+        <button id="solveButton">Solve Schedule</button>
     </div>
     
-    <div class="schedule-summary-section"> <!-- NEW section for score -->
+    <div class="schedule-summary-section">
         <h2>Schedule Summary <button class="toggle-data-btn" data-target="scheduleSummaryOutput">Show Summary</button></h2>
         <pre id="scheduleSummaryOutput" class="data-list hidden">Summary will appear here...</pre>
     </div>
 
     <div class="schedule-section">
         <h2>Assigned Route Runs <button class="toggle-data-btn" data-target="assignedRunsOutput">Show Runs</button></h2>
-        <pre id="assignedRunsOutput" class.="data-list hidden">Assigned runs will appear here...</pre>
+        <pre id="assignedRunsOutput" class="data-list hidden">Assigned runs will appear here...</pre>
     </div>
 
-    <!-- NEW Section for Detailed Activity Logs -->
     <div class="activity-log-section">
         <h2>Detailed Activity Logs <button class="toggle-data-btn" data-target="fullActivityLogOutput">Show All Activities</button></h2>
         <div id="fullActivityLogOutput" class="data-list hidden">
-            <!-- Bus specific logs will be injected here by JS -->
-            <!-- Driver specific logs will be injected here by JS -->
+            <!-- Activity logs will be injected here by JS -->
         </div>
     </div>
     <hr>
