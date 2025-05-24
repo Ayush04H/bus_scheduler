@@ -1,79 +1,67 @@
-# main-artifact
+# Bus Scheduler
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+A Quarkus-based application designed for bus scheduling and management.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Prerequisites
 
-## Running the application in dev mode
+Before you begin, ensure you have the following installed on your system:
 
-You can run your application in dev mode that enables live coding using:
+*   **Git:** To clone the repository. ([Download Git](https://git-scm.com/downloads))
+*   **Java Development Kit (JDK):** Version 21 or higher (Quarkus typically requires this). ([OpenJDK Downloads](https://jdk.java.net/))
+*   **Apache Maven:** Version 3.8.x or higher. ([Download Maven](https://maven.apache.org/download.cgi))
 
-```shell script
-./mvnw quarkus:dev
+## Getting Started
+
+Follow these steps to clone the repository and run the application locally.
+
+### 1. Clone the Repository
+
+Open your terminal or command prompt and run the following command to clone the project to your local machine:
+
+```bash
+git clone https://github.com/Ayush04H/bus_scheduler.git
+```
+### 2. Navigate to the Project Directory
+
+Change your current directory to the newly cloned project folder:
+
+```
+cd bus_scheduler
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+### 3. Run the Application (Development Mode)
 
-## Packaging and running the application
+Inside the bus_scheduler directory, run the following Maven command to start the Quarkus application in development mode:
 
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```
+mvn quarkus:dev
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+What this command does:
+* It compiles your Java code.
+* It starts the Quarkus application.
+* It enables "live reload," meaning that when you make changes to your code (Java files, resource files, etc.), Quarkus will automatically recompile and restart the application, allowing you to see your changes quickly without a manual restart.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
 
-If you want to build an _über-jar_, execute the following command:
+### 4. Access the Application
+Once the application has started successfully, you should see output in your terminal similar to:
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+![Quarkus Logo](./img/quarkus.png)
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+* You can now access the application by opening your web browser and navigating to:
+http://localhost:8080
+* If your application has REST endpoints, you can usually find a list of them or interact with them via a path like http://localhost:8080/q/dev/ (Quarkus Dev UI) 
+* if quarkus-resteasy-reactive-qute or similar is included, or directly via their defined paths (e.g., http://localhost:8080/api/data/allstops).
 
-## Creating a native executable
 
-You can create a native executable using:
+[Watch How to run in CMD (Powershell or Terminal)](https://drive.google.com/file/d/1E9F8GURC36dKOWdVfxCpuE0afCOFaaHA/view?usp=drive_link)
 
-```shell script
-./mvnw package -Dnative
-```
+### Command Runner Demo
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+![Command Runner Demo](./video/CMD_RUnner.mp4)
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+### 5. Stopping the Application
+To stop the development server, go back to your terminal window where mvn quarkus:dev is running and press Ctrl+C.
 
-You can then execute your native executable with: `./target/main-artifact-1.0.0-SNAPSHOT-runner`
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 
-## Related Guides
-
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- WebSockets ([guide](https://quarkus.io/guides/websockets)): WebSocket communication channel support
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
-
-### WebSockets
-
-WebSocket communication channel starter code
-
-[Related guide section...](https://quarkus.io/guides/websockets)
