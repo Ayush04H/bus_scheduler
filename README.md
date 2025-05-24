@@ -6,9 +6,17 @@ A Quarkus-based application designed for bus scheduling and management.
 
 Before you begin, ensure you have the following installed on your system:
 
+* Enter the Following Commands to check for Java and Maven on SYsytem if present or Not:
+```
+java --version
+mvn -version
+```
+
+
 *   **Git:** To clone the repository. ([Download Git](https://git-scm.com/downloads))
-*   **Java Development Kit (JDK):** Version 21 or higher (Quarkus typically requires this). ([OpenJDK Downloads](https://jdk.java.net/))
-*   **Apache Maven:** Version 3.8.x or higher. ([Download Maven](https://maven.apache.org/download.cgi))
+*   **Java Development Kit (JDK) [Must]:** Version 21 or higher (Quarkus typically requires this). ([OpenJDK Downloads](https://jdk.java.net/)) 
+
+*   **Apache Maven [Must]:** Version 3.8.x or higher. ([Download Maven](https://maven.apache.org/download.cgi))
 
 ## Getting Started
 
