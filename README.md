@@ -48,7 +48,7 @@ Once the application has started successfully, you should see output in your ter
 
 ![Quarkus Logo](./img/quarkus.png)
 
-* You can now access the application by opening your web browser and navigating to:
+* You can now access the application by opening your web browser [Google Chrome Prefered] and navigating to:
 http://localhost:8080
 * If your application has REST endpoints, you can usually find a list of them or interact with them via a path like http://localhost:8080/q/dev/ (Quarkus Dev UI) 
 * if quarkus-resteasy-reactive-qute or similar is included, or directly via their defined paths (e.g., http://localhost:8080/api/data/allstops).
@@ -64,6 +64,12 @@ http://localhost:8080
 
 ### 5. Stopping the Application
 To stop the development server, go back to your terminal window where mvn quarkus:dev is running and press Ctrl+C.
+
+
+
+## Demo Video Of Application
+
+[![Watch Demo Video](./video/demo_video.jpeg)](https://drive.google.com/file/d/1p4hl_Dgu3sjkWuPrNExtyAKCGRtYjpZi/view?usp=sharing)
 
 
 
