@@ -56,9 +56,11 @@ http://localhost:8080
 
 [Watch How to run in CMD (Powershell or Terminal)](https://drive.google.com/file/d/1E9F8GURC36dKOWdVfxCpuE0afCOFaaHA/view?usp=drive_link)
 
-### Command Runner Demo
+### Watch the Command Runner Demo
 
-![Command Runner Demo](./video/CMD_RUnner.mp4)
+[![Watch Demo Video](./video/cmd_runner.jpeg)](https://drive.google.com/file/d/1E9F8GURC36dKOWdVfxCpuE0afCOFaaHA/view?usp=drive_link)
+
+*(Click the image above to watch the video on GitHub)*
 
 ### 5. Stopping the Application
 To stop the development server, go back to your terminal window where mvn quarkus:dev is running and press Ctrl+C.
