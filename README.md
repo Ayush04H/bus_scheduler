@@ -66,7 +66,11 @@ http://localhost:8080
 
 ### Watch the Command Runner Demo
 
-[![Watch Demo Video](./video/cmd_runner.jpeg)](https://drive.google.com/file/d/1E9F8GURC36dKOWdVfxCpuE0afCOFaaHA/view?usp=drive_link)
+
+
+<a href="https://drive.google.com/file/d/1E9F8GURC36dKOWdVfxCpuE0afCOFaaHA/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+  <img src="./video/cmd_runner.jpeg" alt="Watch Demo Video - Click to View" width="400">
+</a>
 
 *(Click the image above to watch the video on GitHub)*
 
@@ -75,9 +79,17 @@ To stop the development server, go back to your terminal window where mvn quarku
 
 
 
+## Appearance of the UI
+![Quarkus Logo](./img/Bus-Scheduling-System.png)
+
+
+
 ## Demo Video Of Application
 
-[![Watch Demo Video](./video/demo_video.jpeg)](https://drive.google.com/file/d/1p4hl_Dgu3sjkWuPrNExtyAKCGRtYjpZi/view?usp=sharing)
 
 
 
+
+<a href="https://drive.google.com/file/d/1p4hl_Dgu3sjkWuPrNExtyAKCGRtYjpZi/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+  <img src="./video/demo_video.jpeg" alt="Watch Demo Video - Click to View" width="400">
+</a>
