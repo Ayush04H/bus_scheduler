@@ -4,63 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bus Scheduling System</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Optional: Google Fonts for Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Bus Scheduling System</h1>
+    <div class="container mt-4">
+        <header class="text-center mb-5 site-header">
+            <h1 class="display-4 site-title">🚌 Bus Scheduling System  Scheduler</h1>
+            <p class="lead site-subtitle">Optimize your fleet with intelligent scheduling.</p>
+        </header>
 
-    <div class="actions-section">
-        <h2>Actions</h2>
-        <button id="solveButton">Solve Schedule</button>
-    </div>
-    
-    <div class="schedule-summary-section">
-        <h2>Schedule Summary <button class="toggle-data-btn" data-target="scheduleSummaryOutput">Show Summary</button></h2>
-        <pre id="scheduleSummaryOutput" class="data-list hidden">Summary will appear here...</pre>
-    </div>
-
-    <div class="schedule-section">
-        <h2>Assigned Route Runs <button class="toggle-data-btn" data-target="assignedRunsOutput">Show Runs</button></h2>
-        <pre id="assignedRunsOutput" class="data-list hidden">Assigned runs will appear here...</pre>
-    </div>
-
-    <div class="activity-log-section">
-        <h2>Detailed Activity Logs <button class="toggle-data-btn" data-target="fullActivityLogOutput">Show All Activities</button></h2>
-        <div id="fullActivityLogOutput" class="data-list hidden">
-            <!-- Activity logs will be injected here by JS -->
+        <div class="card actions-card mb-4 shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Control Panel</h2>
+            </div>
+            <div class="card-body text-center">
+                <button id="solveButton" class="btn btn-success btn-lg solve-btn-custom">
+                    <span class="icon-play">▶</span> Generate Schedule
+                </button>
+            </div>
         </div>
-    </div>
-    <hr>
+        
+        <div class="card schedule-summary-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 section-title-icon"><span class="icon-summary">📊</span> Schedule Summary</h2>
+                <button class="btn btn-sm btn-outline-primary toggle-data-btn" data-target="scheduleSummaryOutput">
+                    <span class="toggle-icon">+</span> Show
+                </button>
+            </div>
+            <div class="card-body">
+                <pre id="scheduleSummaryOutput" class="data-output hidden">Summary will appear here...</pre>
+            </div>
+        </div>
 
-    <h2>Input Data</h2>
-    <div class="data-section">
-        <h2>Bus Stops <button class="toggle-data-btn" data-target="busStopsList">Show Data</button></h2>
-        <ul id="busStopsList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
-    <div class="data-section">
-        <h2>Buses <button class="toggle-data-btn" data-target="busesList">Show Data</button></h2>
-        <ul id="busesList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
-    <div class="data-section">
-        <h2>Bus Routes <button class="toggle-data-btn" data-target="busRoutesList">Show Data</button></h2>
-        <ul id="busRoutesList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
-     <div class="data-section">
-        <h2>Bus Depots <button class="toggle-data-btn" data-target="busDepotsList">Show Data</button></h2>
-        <ul id="busDepotsList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
-    <div class="data-section">
-        <h2>Bus Terminals <button class="toggle-data-btn" data-target="busTerminalsList">Show Data</button></h2>
-        <ul id="busTerminalsList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
-    <div class="data-section">
-        <h2>Bus Drivers <button class="toggle-data-btn" data-target="busDriversList">Show Data</button></h2>
-        <ul id="busDriversList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
-    <div class="data-section">
-        <h2>Route Runs (To Be Scheduled) <button class="toggle-data-btn" data-target="routeRunsList">Show Data</button></h2>
-        <ul id="routeRunsList" class="data-list hidden"><li>Loading...</li></ul>
-    </div>
+        <div class="card schedule-details-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 section-title-icon"><span class="icon-list">📋</span> Assigned Route Runs</h2>
+                <button class="btn btn-sm btn-outline-primary toggle-data-btn" data-target="assignedRunsOutput">
+                     <span class="toggle-icon">+</span> Show
+                </button>
+            </div>
+            <div class="card-body">
+                <pre id="assignedRunsOutput" class="data-output hidden">Assigned runs will appear here...</pre>
+            </div>
+        </div>
+
+        <div class="card activity-log-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 section-title-icon"><span class="icon-timeline">⏱️</span> Detailed Activity Logs</h2>
+                <button class="btn btn-sm btn-outline-primary toggle-data-btn" data-target="fullActivityLogOutput">
+                     <span class="toggle-icon">+</span> Show
+                </button>
+            </div>
+            <div id="fullActivityLogOutput" class="card-body data-output hidden">
+                <!-- Activity logs will be injected here by JS -->
+            </div>
+        </div>
+        
+        <hr class="my-5 fancy-hr">
+
+        <h2 class="text-center data-section-title mb-4">System Input Data</h2>
+        <div class="row">
+            <!-- Bus Stops -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card data-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-pin">📍</span> Bus Stops</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="busStopsList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="busStopsList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Buses -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card data-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-bus">🚌</span> Buses</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="busesList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="busesList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Bus Routes -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card data-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-route">🗺️</span> Bus Routes</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="busRoutesList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="busRoutesList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Bus Depots -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card data-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-depot">🏢</span> Bus Depots</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="busDepotsList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="busDepotsList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Bus Terminals -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card data-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-terminal">🚉</span> Bus Terminals</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="busTerminalsList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="busTerminalsList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Bus Drivers -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card data-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-driver">👨‍✈️</span> Bus Drivers</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="busDriversList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="busDriversList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+             <!-- Route Runs -->
+            <div class="col-md-12 mb-4">
+                 <div class="card data-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0 section-title-icon"><span class="icon-runs">路線</span> Route Runs</h3>
+                        <button class="btn btn-sm btn-outline-info toggle-data-btn" data-target="routeRunsList">
+                             <span class="toggle-icon">+</span> Show
+                        </button>
+                    </div>
+                    <ul id="routeRunsList" class="list-group list-group-flush data-list hidden">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div> <!-- /.row -->
+
+        <footer class="text-center mt-5 mb-3 site-footer">
+            <p>© Basis Bus Scheduling System.Powered By Heuristics</p>
+        </footer>
+    </div> <!-- /.container -->
 
     <script src="js/app.js"></script>
 </body>

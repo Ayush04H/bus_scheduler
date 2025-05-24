@@ -1,3 +1,59 @@
+// ... (Keep ALL your existing JS code: DOMContentLoaded, renderActivityLogs, fetchData, populateList, loadX functions) ...
+
+// Modify setupToggleButtons to handle the icon change
+function getDisplayLabel(targetId) {
+    let label = targetId.replace('List', '').replace('Output', '');
+    // Regex to insert space before capital letters (and numbers if they follow a letter)
+    label = label.replace(/([a-z])([A-Z0-9])/g, '$1 $2');
+    label = label.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2'); // Handles cases like "BusStops" -> "Bus Stops"
+    return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function setupToggleButtons() { 
+    const toggleButtons = document.querySelectorAll('.toggle-data-btn');
+    toggleButtons.forEach(button => {
+        const targetId = button.dataset.target;
+        const targetElement = document.getElementById(targetId);
+        const iconElement = button.querySelector('.toggle-icon'); // Get the icon span
+
+        if (!targetElement) {
+            console.error(`Target element with ID "${targetId}" not found for button:`, button);
+            return;
+        }
+
+        const updateButton = () => {
+            const labelName = getDisplayLabel(targetId);
+            const isHidden = targetElement.classList.contains('hidden');
+            
+            button.innerHTML = ''; // Clear button content
+            const newIconSpan = document.createElement('span');
+            newIconSpan.className = 'toggle-icon';
+            newIconSpan.textContent = isHidden ? '+' : '−'; // Minus sign for expanded
+            
+            button.appendChild(newIconSpan);
+            button.appendChild(document.createTextNode(isHidden ? ` Show ${labelName}` : ` Hide ${labelName}`));
+
+            if (isHidden) {
+                button.classList.remove('expanded');
+            } else {
+                button.classList.add('expanded');
+            }
+        };
+
+        updateButton(); // Set initial text and icon
+
+        button.addEventListener('click', () => {
+            targetElement.classList.toggle('hidden');
+            // Animate toggle (optional, can be done with CSS transitions on max-height)
+            // If using CSS for max-height transition, this JS toggle is enough.
+            updateButton();
+        });
+    });
+}
+
+// The rest of your app.js (DOMContentLoaded, renderActivityLogs, fetchData, populateList, loadX functions)
+// should remain unchanged from the version that correctly displays the activity log tables.
+// I'm pasting the DOMContentLoaded again just to be sure about the button text update part
 document.addEventListener('DOMContentLoaded', () => {
     loadAllStops(); 
     loadBuses(); 
@@ -6,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBusTerminals(); 
     loadBusDrivers(); 
     loadRouteRuns();
-    setupToggleButtons();
+    setupToggleButtons(); // This will now use the enhanced version
 
     const solveButton = document.getElementById('solveButton');
     const scheduleSummaryOutputElement = document.getElementById('scheduleSummaryOutput');
@@ -22,8 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
             [scheduleSummaryOutputElement, assignedRunsOutputElement, fullActivityLogOutputElement].forEach(el => {
                 if (el.classList.contains('hidden')) {
                     el.classList.remove('hidden');
+                    // Update button associated with this element
                     const btn = document.querySelector(`.toggle-data-btn[data-target="${el.id}"]`);
-                    if (btn) btn.textContent = `Hide ${getDisplayLabel(el.id)}`;
+                    if (btn) {
+                         const labelName = getDisplayLabel(el.id);
+                         btn.innerHTML = ''; // Clear button content
+                         const newIconSpan = document.createElement('span');
+                         newIconSpan.className = 'toggle-icon';
+                         newIconSpan.textContent = '−'; // Minus sign for expanded
+                         btn.appendChild(newIconSpan);
+                         btn.appendChild(document.createTextNode(` Hide ${labelName}`));
+                         btn.classList.add('expanded');
+                    }
                 }
             });
 
@@ -70,14 +136,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         if (!solveButton) console.error("Solve button (#solveButton) not found!");
-        if (!scheduleSummaryOutputElement) console.error("Schedule summary output element (#scheduleSummaryOutput) not found!");
-        if (!assignedRunsOutputElement) console.error("Assigned runs output element (#assignedRunsOutput) not found!");
-        if (!fullActivityLogOutputElement) console.error("Full activity log output element (#fullActivityLogOutput) not found!");
+        // ... other element checks
     }
 });
 
 
+// renderActivityLogs, fetchData, populateList, loadX functions as per your last working version
+// (The version I provided in the previous response which correctly renders activity tables)
+// For brevity, I'm not repeating them here, but ensure they are the ones that were working.
+// Specifically, renderActivityLogs is crucial for the activity display.
+// ... (paste your working renderActivityLogs, fetchData, populateList, and all loadX functions here) ...
+// Ensure your `renderActivityLogs` from the previous successful step is included here.
+// All the `loadX` functions (loadAllStops, loadBuses, etc.) and `fetchData`, `populateList`
+// from your last fully working `app.js` should be retained. The key change is in `setupToggleButtons`
+// and the `DOMContentLoaded` listener's `solveButton` part for updating toggle buttons.
+
+// Make sure to include the FULL, PREVIOUSLY WORKING renderActivityLogs, fetchData, populateList, and all loadX functions.
+// The snippet below just shows where they go relative to the modified setupToggleButtons.
+
 function renderActivityLogs(logs, containerElement) {
+    // ... (This should be your fully working version from the previous step) ...
     const logsByEntity = {};
     logs.forEach(log => {
         const key = `${log.entityType}-${log.entityId}`;
@@ -95,6 +173,7 @@ function renderActivityLogs(logs, containerElement) {
         if (entityA.entityType !== entityB.entityType) { return entityA.entityType === 'BUS' ? -1 : 1; }
         return entityA.entityId.localeCompare(entityB.entityId);
     });
+    containerElement.innerHTML = ''; // Clear previous logs
     sortedEntityKeys.forEach(key => {
         const entityLog = logsByEntity[key];
         const block = document.createElement('div'); block.className = 'entity-activity-block';
@@ -123,85 +202,28 @@ function renderActivityLogs(logs, containerElement) {
     });
 }
 
-function getDisplayLabel(targetId) {
-    let label = targetId.replace('List', '').replace('Output', '');
-    label = label.replace(/([A-Z0-9])/g, ' $1').trim(); 
-    return label.charAt(0).toUpperCase() + label.slice(1);
-}
-
-function setupToggleButtons() { 
-    const toggleButtons = document.querySelectorAll('.toggle-data-btn');
-    toggleButtons.forEach(button => {
-        const targetId = button.dataset.target;
-        const targetElement = document.getElementById(targetId);
-        if (!targetElement) {
-            console.error(`Target element with ID "${targetId}" not found for button:`, button);
-            return;
-        }
-        const updateButtonText = () => {
-            const labelName = getDisplayLabel(targetId);
-            button.textContent = targetElement.classList.contains('hidden') ?
-                `Show ${labelName}` : `Hide ${labelName}`;
-        };
-        updateButtonText();
-        button.addEventListener('click', () => {
-            targetElement.classList.toggle('hidden');
-            updateButtonText();
-        });
-    });
-}
-
 async function fetchData(url) { 
     try {
-        console.log(`[fetchData] Fetching from: ${url}`); // DEBUG
         const response = await fetch(url);
-        console.log(`[fetchData] Response for ${url} - Status: ${response.status}, OK: ${response.ok}`); // DEBUG
-        if (!response.ok) { 
-            const errorBody = await response.text();
-            console.error(`[fetchData] HTTP error for ${url}! Status: ${response.status}. Body: ${errorBody}`);
-            throw new Error(`HTTP error! status: ${response.status}. Server text: ${errorBody}`); 
-        }
-        const jsonData = await response.json();
-        console.log(`[fetchData] Parsed JSON for ${url} - Type: ${typeof jsonData}, IsArray: ${Array.isArray(jsonData)}. Length: ${Array.isArray(jsonData) ? jsonData.length : 'N/A'}. Data:`, jsonData); // DEBUG
-        return jsonData;
-    } catch (error) { 
-        console.error(`[fetchData] CATCH block for ${url}:`, error); 
-        return []; // Return empty array on fetch/parse error to prevent further issues
-    }
+        if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+        return await response.json();
+    } catch (error) { console.error(`Could not fetch data from ${url}:`, error); return []; }
 }
-
 function populateList(elementId, data, formatter) { 
-    console.log(`[populateList] START for: ${elementId}. Type of data: ${typeof data}. Is Array: ${Array.isArray(data)}. Data:`, data); // ENHANCED DEBUG
     const listElement = document.getElementById(elementId);
-    if (!listElement) { 
-        console.error(`[populateList] List element with ID "${elementId}" NOT FOUND.`);
-        return; 
-    }
-
-    if (!Array.isArray(data)) { // MORE ROBUST CHECK
-        console.error(`[populateList] Data for ${elementId} is not an array. Received (type ${typeof data}):`, data);
-        listElement.innerHTML = '<li>Error: Invalid data format received.</li>'; 
-        return;
-    }
-
-    if (data.length === 0) { 
+    if (!listElement) { console.error(`List element with ID "${elementId}" not found.`); return; }
+    listElement.innerHTML = '<li>Loading...</li>'; 
+    if (!data || !Array.isArray(data) || data.length === 0) { // Added Array.isArray check
         listElement.innerHTML = '<li>No data available or error loading.</li>'; 
-        console.log(`[populateList] No data for ${elementId}.`);
         return; 
     }
-
     listElement.innerHTML = ''; 
-    console.log(`[populateList] Cleared content for ${elementId}. Populating with ${data.length} items.`);
     data.forEach(item => { 
         const li = document.createElement('li'); 
-        const textContent = formatter(item);
-        li.textContent = textContent;
+        li.textContent = formatter(item); 
         listElement.appendChild(li); 
     });
-    console.log(`[populateList] FINISHED populating ${elementId}.`);
 }
-
-// --- Load Data Functions with pre-fetch "Loading..." message ---
 async function loadAllStops() { 
     document.getElementById('busStopsList').innerHTML = '<li>Loading Bus Stops...</li>';
     const data = await fetchData('/api/data/allstops');
@@ -229,7 +251,7 @@ async function loadBusTerminals() {
 }
 async function loadBusDrivers() { 
     document.getElementById('busDriversList').innerHTML = '<li>Loading Bus Drivers...</li>';
-    const data = await fetchData('/api/data/drivers'); // Renamed to 'data' for consistency
+    const data = await fetchData('/api/data/drivers'); 
     populateList('busDriversList', data, driver => `ID: ${driver.id}, Name: ${driver.name}`);
 }
 async function loadRouteRuns() { 

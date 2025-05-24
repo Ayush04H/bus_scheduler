@@ -1,237 +1,299 @@
-/* === Reset & Basic Setup === */
+/* === Global Reset & Font === */
+:root {
+    --primary-color: #2979FF; /* Brighter Blue */
+    --secondary-color: #00C853; /* Vivid Green */
+    --accent-color: #D50000; /* Strong Red */
+    --text-color: #263238; /* Dark Blue Grey */
+    --text-muted-color: #546E7A; /* Lighter Blue Grey */
+    --bg-color: #eef2f7; /* Very light blue/grey */
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.075);
+    --font-family: 'Roboto', 'Segoe UI', sans-serif;
+    --header-font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family);
     margin: 0;
-    padding: 20px;
-    background-color: #f0f2f5; /* Light grey background */
-    color: #333;
-    line-height: 1.6;
+    padding: 0; /* Container will handle padding */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.7;
+    font-size: 16px; /* Base font size */
 }
 
-* {
-    box-sizing: border-box;
+* { box-sizing: border-box; }
+
+/* === Typography & Header/Footer === */
+.site-header {
+    padding: 2rem 0;
+    margin-bottom: 2rem !important; /* Bootstrap override */
+}
+.site-title {
+    color: var(--primary-color);
+    font-weight: 700; /* Bolder for main title */
+    letter-spacing: -0.5px;
+    border-bottom: none; /* Remove previous border */
+    font-family: var(--header-font-family);
+}
+.site-subtitle {
+    color: var(--text-muted-color);
+    font-size: 1.15rem;
+    margin-top: 0.5rem;
 }
 
-/* === General Layout & Typography === */
-h1 {
-    color: #1a237e; /* Dark blue */
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 2.5em;
+.data-section-title {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-family: var(--header-font-family);
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+    padding-bottom: 5px;
 }
 
-h2 {
-    color: #3949ab; /* Indigo */
-    border-bottom: 2px solid #7986cb; /* Lighter indigo */
-    padding-bottom: 10px;
-    margin-top: 30px;
-    margin-bottom: 20px;
-    font-size: 1.8em;
+h2.section-title-icon, h3.h5.section-title-icon {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    font-family: var(--header-font-family);
+}
+.section-title-icon .icon-summary, .section-title-icon .icon-list, 
+.section-title-icon .icon-timeline, .section-title-icon .icon-pin,
+.section-title-icon .icon-bus, .section-title-icon .icon-route,
+.section-title-icon .icon-depot, .section-title-icon .icon-terminal,
+.section-title-icon .icon-driver, .section-title-icon .icon-runs {
+    margin-right: 10px;
+    font-size: 1.2em; /* Make icons a bit larger */
+    color: var(--primary-color);
+    opacity: 0.8;
 }
 
-hr {
-    margin: 40px 0;
+
+hr.fancy-hr {
+    margin: 60px 0;
     border: 0;
-    border-top: 1px solid #e0e0e0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), var(--primary-color), rgba(0, 0, 0, 0));
+}
+
+.site-footer {
+    color: var(--text-muted-color);
+    font-size: 0.9em;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
 }
 
 /* === Buttons === */
-button {
-    padding: 10px 18px;
-    background-color: #1e88e5; /* Bright blue */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.btn { /* General Bootstrap button overrides */
+    border-radius: 50px !important; /* Pill shape */
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 500 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border: none !important;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+.btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
-button:hover {
-    background-color: #1565c0; /* Darker blue */
+#solveButton.solve-btn-custom {
+    font-size: 1.2rem !important;
+    padding: 0.75rem 2rem !important;
+    background-image: linear-gradient(45deg, var(--secondary-color), #26a69a) !important; /* Tealish green gradient */
+    border: none !important;
+    color: white !important;
 }
-button:active {
-    transform: translateY(1px);
+#solveButton.solve-btn-custom:hover {
+    background-image: linear-gradient(45deg, #27ae60, var(--secondary-color)) !important;
 }
+.icon-play { margin-right: 8px; }
 
 .toggle-data-btn {
-    padding: 6px 12px;
-    font-size: 0.85em;
-    background-color: #5c6bc0; /* Indigo light */
-    border: none;
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.8rem !important;
+    display: inline-flex; /* For icon alignment */
+    align-items: center;
 }
-.toggle-data-btn:hover {
-    background-color: #3949ab; /* Indigo */
+.toggle-data-btn .toggle-icon {
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    display: inline-block; /* Needed for transform */
 }
-
-/* === Sections === */
-.actions-section,
-.schedule-summary-section,
-.schedule-section,
-.activity-log-section,
-.data-section {
-    background-color: #ffffff;
-    margin-bottom: 25px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    transition: box-shadow 0.3s ease-in-out;
+.toggle-data-btn.expanded .toggle-icon {
+    transform: rotate(45deg); /* Change '+' to 'x' like */
 }
 
-.actions-section:hover,
-.schedule-summary-section:hover,
-.schedule-section:hover,
-.activity-log-section:hover,
-.data-section:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+
+/* === Card Styling === */
+.card {
+    border-radius: 10px !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 12px var(--shadow-color) !important;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out !important;
+}
+.card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+}
+.card-header {
+    background-color: transparent !important; /* Cleaner header */
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 0.75rem 1.25rem !important; /* Bootstrap default */
+}
+.card-header h2, .card-header h3.h5 {
+    font-size: 1.1rem !important; /* Smaller header text in cards */
+    color: var(--text-color) !important;
+    font-weight: 500 !important;
+    border-bottom: none !important; /* Remove previous h2 border */
+}
+.card-body {
+    padding: 1.25rem !important; /* Bootstrap default */
 }
 
-/* === Input Data Lists (ul/li) === */
-ul.data-list { /* Added class to ul for specificity */
-    list-style-type: none;
-    padding-left: 0;
-    max-height: 300px; /* Limit height and make scrollable */
+/* === Data Lists (ul & pre) === */
+ul.data-list, pre.data-output {
+    max-height: 0; /* Start collapsed */
+    overflow: hidden; /* Hide content when max-height is 0 */
+    border: none; /* Remove border if using inside card-body */
+    padding: 0; /* Remove padding when collapsed */
+    font-size: 0.9rem;
+    margin-top: 0;
+    opacity: 0; /* Start transparent */
+    visibility: hidden; /* Start hidden from accessibility tree */
+    transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                padding 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                opacity 0.3s ease 0.1s, /* Delay opacity for smoother feel */
+                visibility 0s ease 0.4s; /* Delay visibility change */
+}
+ul.data-list:not(.hidden), pre.data-output:not(.hidden) {
+    max-height: 350px; /* Expand to this height */
     overflow-y: auto;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 10px;
+    padding: 15px; /* Add padding back when visible */
+    opacity: 1;
+    visibility: visible;
+    border-top: 1px solid var(--border-color); /* Add separator when open */
+    margin-top: 15px;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                padding 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                opacity 0.3s ease, 
+                visibility 0s ease;
 }
 
-ul.data-list li {
-    padding: 10px 8px;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.95em;
+ul.list-group-flush.data-list li.list-group-item { /* For Bootstrap lists */
+    padding: 0.6rem 0.8rem;
+    background-color: transparent;
+    border-color: #f0f0f0;
     transition: background-color 0.2s ease;
 }
-ul.data-list li:last-child {
-    border-bottom: none;
-}
-ul.data-list li:hover {
-    background-color: #e3f2fd; /* Light blue on hover */
+ul.list-group-flush.data-list li.list-group-item:hover {
+    background-color: #e9ecef; /* Bootstrap light grey */
 }
 
-/* === Schedule Output (pre tags) === */
-pre.data-list { /* Added class to pre for specificity */
-    background-color: #263238; /* Darker material blue-grey */
-    color: #eceff1; /* Light grey text */
-    padding: 20px;
-    border-radius: 6px;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9em;
-    line-height: 1.5;
-    max-height: 400px; /* Scrollable */
-    overflow-y: auto;
+pre.data-output { /* For schedule summary, assigned runs */
+    background-color: #212529; /* Bootstrap dark */
+    color: #f8f9fa; /* Bootstrap light */
+    font-family: 'SFMono-Regular', Consolas, Menlo, Courier, monospace;
+    line-height: 1.6;
 }
 
-/* === Activity Log Specific Styles === */
+/* === Activity Log Table Styling === */
 .entity-activity-block {
-    margin-bottom: 25px;
-    padding: 15px;
-    border: 1px solid #d1c4e9; /* Light purple border */
-    border-radius: 6px;
-    background-color: #f8f9fa; /* Very light grey */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0; /* Start hidden for animation */
+}
+.entity-activity-block:nth-child(odd) { animation-delay: 0.1s; }
+.entity-activity-block:nth-child(even) { animation-delay: 0.2s; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.entity-activity-block h4 {
-    margin-top: 0;
-    color: #4527a0; /* Deep purple */
-    border-bottom: 2px solid #b39ddb; /* Lighter purple */
-    padding-bottom: 8px;
-    font-size: 1.3em;
+.entity-activity-block h4 { /* Title for each bus/driver log */
+    background: linear-gradient(45deg, var(--primary-color), #5c6bc0); /* Gradient header */
+    color: white;
+    padding: 0.8rem 1rem;
+    margin: 0;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    font-size: 1.05rem;
+    font-weight: 500;
 }
 
 .activity-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    font-size: 0.9em;
-    animation: fadeInTable 0.5s ease-in-out; /* Simple fade-in for tables */
+    border-collapse: separate; /* Allows border-spacing */
+    border-spacing: 0; /* Remove default spacing */
+    font-size: 0.85rem;
+    table-layout: fixed; /* Helps with column widths */
 }
-
-@keyframes fadeInTable {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.activity-table th,
-.activity-table td {
-    border: 1px solid #e0e0e0;
-    padding: 10px 12px;
+.activity-table th, .activity-table td {
+    padding: 0.6rem 0.75rem; /* Slightly reduced padding */
+    border-bottom: 1px solid #f0f0f0;
     text-align: left;
     vertical-align: middle;
+    word-break: break-word; /* Prevent long words from breaking layout */
 }
-
 .activity-table th {
-    background-color: #ede7f6; /* Light purple tint */
-    color: #4a148c; /* Dark purple */
+    background-color: #f8f9fc;
+    color: var(--text-color);
     font-weight: 600;
+    white-space: nowrap;
+    position: sticky; /* Sticky headers for scrollable tables if table itself is in a scrollable div */
+    top: 0;
+    z-index: 1;
 }
-
-.activity-table tr:nth-child(even) td { /* Slightly different bg for even rows */
-    background-color: #fdfcfe;
-}
+.activity-table tr:last-child td { border-bottom: none; }
 .activity-table tr:hover td {
-    background-color: #d1c4e9 !important; /* Light purple on hover, !important to override nth-child */
-    color: #212121;
-    transition: background-color 0.2s ease;
+    background-color: #eff3f8;
 }
 
-/* Color coding for activity types */
-.activity-table td[data-label="Activity"] { font-weight: 500; }
-.activity-type-ROUTE_SERVICE { color: #00796b; /* Teal */}
+/* Specific column widths */
+.activity-table th:nth-child(1), .activity-table td:nth-child(1), /* Start */
+.activity-table th:nth-child(2), .activity-table td:nth-child(2) { /* End */
+    width: 10%;
+    white-space: nowrap;
+}
+.activity-table th:nth-child(3), .activity-table td:nth-child(3) { /* Activity */
+    width: 15%;
+}
+.activity-table th:nth-child(5), .activity-table td:nth-child(5) { /* Location */
+    width: 20%;
+}
+.activity-table th:nth-child(6), .activity-table td:nth-child(6) { /* Charge */
+    width: 15%;
+}
+/* Description takes remaining width */
+
+
+/* Color coding (from your styles, good) */
+.activity-type-ROUTE_SERVICE { color: #1976D2; /* Darker Blue */ font-weight: 500; }
 .activity-type-TRAVEL_TO_START_TERMINAL,
-.activity-type-TRAVEL_TO_DEPOT { color: #546e7a; /* Blue Grey */ }
-.activity-type-CHARGING { color: #fb8c00; /* Orange */ }
-.activity-type-MANDATORY_BREAK { color: #d32f2f; /* Red */ }
-.activity-type-WAITING_IDLE { color: #757575; /* Grey */ }
+.activity-type-TRAVEL_TO_DEPOT { color: #455A64; /* Darker Blue Grey */ }
+.activity-type-CHARGING { color: #EF6C00; /* Darker Orange */ font-weight: 500; }
+.activity-type-MANDATORY_BREAK { color: #C62828; /* Darker Red */ font-weight: 500; }
+.activity-type-WAITING_IDLE { color: #616161; /* Darker Grey */ font-style: italic; }
 
+/* Utility: Hidden Class */
+.hidden { display: none !important; }
 
-/* === Utility: Hidden Class === */
-.hidden {
-    display: none !important; /* Use !important to ensure it overrides other display properties */
-}
-
-/* === Basic Responsiveness for Tables (from your code, slightly tweaked) === */
-@media screen and (max-width: 768px) {
-    .activity-table thead {
-        display: none; /* Hide table headers, data-label will be used */
-    }
-    .activity-table, .activity-table tbody, .activity-table tr, .activity-table td {
-        display: block;
-        width: 100%;
-    }
-    .activity-table tr {
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px; /* Add some rounding to stacked rows */
-        padding: 10px; /* Add padding inside the "card" */
-    }
-    .activity-table td {
-        display: flex; /* Use flex for better alignment of label and value */
-        justify-content: space-between; /* Pushes value to the right */
-        text-align: right; /* Align value to the right */
-        padding: 8px 0; /* Adjust padding */
-        padding-left: 0; /* Remove left padding for pseudo-element */
-        border-bottom: 1px dotted #eee; /* Dotted line between "fields" */
-        position: relative; /* Keep for ::before */
-    }
-    .activity-table td:last-child {
-        border-bottom: none;
-    }
-    .activity-table td::before {
-        content: attr(data-label);
-        font-weight: bold;
-        text-align: left; /* Align label to the left */
-        margin-right: 10px; /* Space between label and value */
-        color: #555;
-        /* Removed absolute positioning for simpler flow */
-    }
+/* Responsive Table (from your styles - should still work) */
+@media screen and (max-width: 860px) { /* Adjusted breakpoint */
+    .activity-table thead { display: none; }
+    .activity-table tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.5rem; }
+    .activity-table td { display: block; text-align: right; padding: 0.5rem; padding-left: 40%; border-bottom: 1px dotted #eee; position: relative; }
+    .activity-table td:last-child { border-bottom: none; }
+    .activity-table td::before { content: attr(data-label); position: absolute; left: 0.5rem; width: 35%; font-weight: bold; text-align: left; color: var(--text-muted-color); }
 }
